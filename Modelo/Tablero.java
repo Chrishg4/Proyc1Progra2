@@ -13,7 +13,7 @@ import Modelo.Observer.TableroObserver;
 
 /**
  *
- * @author sofia
+ * @author sofiagit
  */
 public final class Tablero extends Thread implements TableroObserved {
 
