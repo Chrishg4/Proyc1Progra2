@@ -4,25 +4,49 @@
  */
 package Modelo;
 
-import java.util.Observable;
+import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import Modelo.Observer.TableroObserved;
+import Modelo.Observer.TableroObserver;
 
 /**
  *
  * @author sofia
  */
-public final class Tablero extends Observable implements Runnable{
+public final class Tablero extends Thread implements TableroObserved {
 
     private final int SIZE = 12;
     private final int MINAS = 30;
     private Celda[][] tablero;
     private boolean gameOver;
     private int minasMarcadas;
+    List<TableroObserver> observers;
 
     public Tablero() {
         reiniciarJuego();
+    }
+
+    @Override
+    public void addObserver(TableroObserver observer) {
+        observers.add((TableroObserver) observer);
+    }
+
+    @Override
+    public void removeObserver(TableroObserver observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers(Tablero tablero) {
+         for (TableroObserver observer : observers) {
+            observer.update(tablero); 
+        }
+    }
+
+    private void notificarCambios() {
+        notifyObservers(this);
     }
 
     // Método para inicializar el tablero y distribuir las minas
@@ -37,8 +61,6 @@ public final class Tablero extends Observable implements Runnable{
         calcularMinasAdyacentes();
         gameOver = false;
         minasMarcadas = 0;
-        setChanged();
-        notifyObservers();
     }
 
     // Método para colocar minas aleatoriamente
@@ -97,8 +119,6 @@ public final class Tablero extends Observable implements Runnable{
         if (tablero[fila][columna].isEsMina()) {
             gameOver = true;
             descubrirTodasLasCeldas();
-            setChanged();
-            notifyObservers();
             return;
         }
 
@@ -106,8 +126,6 @@ public final class Tablero extends Observable implements Runnable{
         if (tablero[fila][columna].getMinasAdyacentes() == 0) {
             descubrirCeldasAdyacentes(fila, columna);
         }
-        setChanged();
-        notifyObservers();
     }
 
     // Método recursivo para descubrir celdas sin minas adyacentes
@@ -132,41 +150,38 @@ public final class Tablero extends Observable implements Runnable{
 
         }
     }
-    
-     // Método para marcar una celda como sospechosa de tener una mina
-    public void marcarCelda(int fila, int columna){
-        if (!posicionValida(fila, columna)|| tablero[fila][columna].isEstaRevelada()|| gameOver){
+
+    // Método para marcar una celda como sospechosa de tener una mina
+    public void marcarCelda(int fila, int columna) {
+        if (!posicionValida(fila, columna) || tablero[fila][columna].isEstaRevelada() || gameOver) {
             return;
         }
         tablero[fila][columna].setEstaMarcada(!tablero[fila][columna].isEstaMarcada());
-        if(tablero[fila][columna].isEstaMarcada()){
+        if (tablero[fila][columna].isEstaMarcada()) {
             minasMarcadas++;
-        }else{
+        } else {
             minasMarcadas--;
         }
-        setChanged();
-        notifyObservers();
+        notificarCambios();
     }
-    
+
     // Otros métodos para acceder a información del modelo
-    public boolean isGameOver(){
+    public boolean isGameOver() {
         return gameOver;
     }
-    
-    public int getMinasMarcadas(){
+
+    public int getMinasMarcadas() {
         return minasMarcadas;
     }
-    
-    public Celda getCelda(int fila, int columna){
+
+    public Celda getCelda(int fila, int columna) {
         return tablero[fila][columna];
     }
 
     @Override
     public void run() {
-        while (!gameOver){
-            //logica para ejecutar animaciones 
-            setChanged();
-            notifyObservers();
+        while (!gameOver) {
+            notificarCambios();
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
