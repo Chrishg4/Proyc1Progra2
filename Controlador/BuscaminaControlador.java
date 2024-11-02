@@ -10,11 +10,11 @@ import Modelo.Tablero;
  *
  * @author pamel
  */
-public class BuscaminaControlador {
+//public class BuscaminaControlador {
 //    private final Tablero tablero;
-//    private final MinesweeperView view;
+//    private final IView view;
 //
-//    public BuscaminaControlador(Tablero tablero, MinesweeperView view) {
+//    public BuscaminaControlador(Tablero tablero, IView view) {
 //        this.tablero = tablero;
 //        this.view = view;
 //        this.tablero.addObserver(view); // Observador para la actualización de la vista
@@ -35,5 +35,5 @@ public class BuscaminaControlador {
 //        tablero.reiniciarJuego();
 //        view.resetView(); // Reinicia la vista
 //    }
-    
-}
+//    
+//}

@@ -4,49 +4,24 @@
  */
 package Modelo;
 
-import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import Modelo.Observer.TableroObserved;
-import Modelo.Observer.TableroObserver;
 
 /**
  *
  * @author sofiagit
  */
-public final class Tablero extends Thread implements TableroObserved {
+public final class Tablero extends Thread{
 
     private final int SIZE = 12;
     private final int MINAS = 30;
     private Celda[][] tablero;
     private boolean gameOver;
     private int minasMarcadas;
-    List<TableroObserver> observers;
 
     public Tablero() {
         reiniciarJuego();
-    }
-
-    @Override
-    public void addObserver(TableroObserver observer) {
-        observers.add((TableroObserver) observer);
-    }
-
-    @Override
-    public void removeObserver(TableroObserver observer) {
-        observers.remove(observer);
-    }
-
-    @Override
-    public void notifyObservers(Tablero tablero) {
-         for (TableroObserver observer : observers) {
-            observer.update(tablero); 
-        }
-    }
-
-    private void notificarCambios() {
-        notifyObservers(this);
     }
 
     // Método para inicializar el tablero y distribuir las minas
@@ -162,7 +137,6 @@ public final class Tablero extends Thread implements TableroObserved {
         } else {
             minasMarcadas--;
         }
-        notificarCambios();
     }
 
     // Otros métodos para acceder a información del modelo
@@ -181,7 +155,6 @@ public final class Tablero extends Thread implements TableroObserved {
     @Override
     public void run() {
         while (!gameOver) {
-            notificarCambios();
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
