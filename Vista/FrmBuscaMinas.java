@@ -4,7 +4,18 @@
  */
 package Vista;
 
+
+import Controlador.Controlador;
+import Modelo.Celda;
+import Modelo.Tablero;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -12,16 +23,36 @@ import javax.swing.JButton;
  */
 public class FrmBuscaMinas extends javax.swing.JFrame {
 
+     
+     private static final int SIZE = 12;
+    private JButton[][] botones;
+    private Controlador controlador;
+    private final Color COLOR_BOTON_NORMAL = new Color(200, 200, 200);
+    
     /**
      * Creates new form FrmBuscaMinas
+     * 
+     * 
      */
+//     public FrmBuscaMinas(ControladorBuscaminas controlador) {
+//        this.controlador = controlador; 
+//       
+//     }
     public FrmBuscaMinas() {
         initComponents();
         
-        quitarFondoYBorde(Reiniciar);
+        quitarFondoBoton(Reiniciar);
+           
+        
+        
+
+        // Inicializa componentes personalizados
+        inicializarComponentesPersonalizados();
         
     }
-    public void quitarFondoYBorde(JButton boton) {
+    
+    
+    public void quitarFondoBoton(JButton boton) {
     // Quitar el fondo
     boton.setContentAreaFilled(false);
     
@@ -29,6 +60,97 @@ public class FrmBuscaMinas extends javax.swing.JFrame {
     boton.setBorderPainted(false);
    
 }
+    
+     private void inicializarComponentesPersonalizados() {
+          // Configura el panel de botones (el tablero del juego)
+    PanelBotones.setLayout(new GridLayout(SIZE, SIZE));
+    botones = new JButton[SIZE][SIZE];
+
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            JButton boton = new JButton();
+            boton.setPreferredSize(new Dimension(40, 40));
+            boton.setBackground(COLOR_BOTON_NORMAL);
+            final int fila = i;
+            final int columna = j;
+
+            boton.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    if (e.getButton() == MouseEvent.BUTTON1) {
+                        controlador.celdaClickIzquierdo(fila, columna);
+                    } else if (e.getButton() == MouseEvent.BUTTON3) {
+                        controlador.celdaClickDerecho(fila, columna);
+                    }
+                }
+            });
+
+            botones[i][j] = boton;
+            PanelBotones.add(boton);
+        }
+    }
+    // Revalidar y repintar el panel para asegurarnos de que todos los botones se generen correctamente
+    PanelBotones.revalidate();
+    PanelBotones.repaint();
+    }
+
+    public void setControlador(Controlador controlador) {
+        this.controlador = controlador;
+        // Asigna la acción al botón Reiniciar
+        Reiniciar.addActionListener(e -> controlador.iniciarJuego());
+    }
+
+    public void actualizarTablero() {
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                Celda celda = controlador.getModelo().getCelda(i, j);
+                JButton boton = botones[i][j];
+
+                if (celda.isEstaRevelada()) {
+                    boton.setEnabled(false);
+                    if (celda.isEsMina()) {
+                        boton.setBackground(Color.RED);
+                        boton.setText("💣");
+                    } else {
+                        boton.setBackground(Color.LIGHT_GRAY);
+                        int minasAdyacentes = celda.getMinasAdyacentes();
+                        if (minasAdyacentes > 0) {
+                            boton.setText(String.valueOf(minasAdyacentes));
+                            switch (minasAdyacentes) {
+                                case 1:
+                                    boton.setForeground(Color.BLUE);
+                                    break;
+                                case 2:
+                                    boton.setForeground(new Color(0, 100, 0));
+                                    break;
+                                case 3:
+                                    boton.setForeground(Color.RED);
+                                    break;
+                                default:
+                                    boton.setForeground(Color.DARK_GRAY);
+                                    break;
+                            }
+                        }
+                    }
+                } else if (celda.isEstaMarcada()) {
+                    boton.setText("🚩");
+                } else {
+                    boton.setText("");
+                    boton.setBackground(COLOR_BOTON_NORMAL);
+                }
+            }
+        }
+    }
+
+    public void actualizarContadorMinas(int minasMarcadas) {
+        numMinas.setText("Minas marcadas: " + minasMarcadas);
+    }
+
+    public void mostrarMensajeFinJuego(String mensaje) {
+        JOptionPane.showMessageDialog(this, mensaje, "Fin del juego", JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -42,6 +164,7 @@ public class FrmBuscaMinas extends javax.swing.JFrame {
         Reiniciar = new javax.swing.JButton();
         numMinas = new javax.swing.JTextField();
         tiempo = new javax.swing.JTextField();
+        PanelBotones = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -85,13 +208,26 @@ public class FrmBuscaMinas extends javax.swing.JFrame {
                     .addContainerGap()))
         );
 
+        javax.swing.GroupLayout PanelBotonesLayout = new javax.swing.GroupLayout(PanelBotones);
+        PanelBotones.setLayout(PanelBotonesLayout);
+        PanelBotonesLayout.setHorizontalGroup(
+            PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        PanelBotonesLayout.setVerticalGroup(
+            PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 455, Short.MAX_VALUE)
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(PanelBotones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -99,7 +235,9 @@ public class FrmBuscaMinas extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(467, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(PanelBotones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
@@ -114,6 +252,20 @@ public class FrmBuscaMinas extends javax.swing.JFrame {
      */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
+        SwingUtilities.invokeLater(() -> {
+            Tablero modelo = new Tablero();
+            FrmBuscaMinas vista = new FrmBuscaMinas();
+            Controlador controlador = new Controlador(modelo, vista);
+
+            // Asigna el controlador
+            vista.setControlador(controlador);
+
+            // Iniciar el juego
+            vista.setVisible(true);
+            controlador.iniciarJuego();
+        });
+        
+        
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
@@ -145,6 +297,7 @@ public class FrmBuscaMinas extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel PanelBotones;
     private javax.swing.JButton Reiniciar;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JTextField numMinas;

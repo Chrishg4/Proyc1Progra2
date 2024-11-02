@@ -5,7 +5,8 @@
 package Controlador;
 
 import Modelo.Tablero;
-import Vista.VistaBuscaminas;
+import Vista.FrmBuscaMinas;
+
 
 /**
  *
@@ -13,9 +14,9 @@ import Vista.VistaBuscaminas;
  */
 public class Controlador {
     private Tablero modelo;
-    private VistaBuscaminas vista;
+    private FrmBuscaMinas vista;
 
-    public Controlador(Tablero modelo, VistaBuscaminas vista) {
+    public Controlador(Tablero modelo, FrmBuscaMinas vista) {
         this.modelo = modelo;
         this.vista = vista;
         this.vista.setControlador(this);
@@ -26,9 +27,9 @@ public class Controlador {
     }
     
     public void iniciarJuego() {
-        modelo.reiniciarJuego();
-        vista.actualizarTablero();
-        modelo.start();
+           modelo.reiniciarJuego(); // Reinicia el modelo (Tablero)
+        vista.actualizarTablero(); // Actualiza la vista para que muestre el tablero limpio
+        vista.actualizarContadorMinas(modelo.getMinasMarcadas()); // Reiniciar contador de minas marcadas
     }
 
     public void celdaClickIzquierdo(int fila, int columna) {
@@ -44,5 +45,7 @@ public class Controlador {
         vista.actualizarTablero();
         vista.actualizarContadorMinas(modelo.getMinasMarcadas());
     }
+    
+    
 }
 
