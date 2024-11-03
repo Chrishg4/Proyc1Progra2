@@ -39,7 +39,10 @@ public class FrmBuscaMinas extends javax.swing.JFrame {
 //       
 //     }
     public FrmBuscaMinas() {
+        
         initComponents();
+       
+        
         
         quitarFondoBoton(Reiniciar);
            
@@ -143,7 +146,7 @@ public class FrmBuscaMinas extends javax.swing.JFrame {
     }
 
     public void actualizarContadorMinas(int minasMarcadas) {
-        numMinas.setText("Minas marcadas: " + minasMarcadas);
+        numMinas.setText( ""+minasMarcadas);
     }
 
     public void mostrarMensajeFinJuego(String mensaje) {
@@ -177,6 +180,11 @@ public class FrmBuscaMinas extends javax.swing.JFrame {
             }
         });
 
+        numMinas.setEditable(false);
+        numMinas.setBackground(new java.awt.Color(0, 0, 0));
+        numMinas.setFont(new java.awt.Font("Dialog", 0, 48)); // NOI18N
+        numMinas.setForeground(new java.awt.Color(255, 0, 0));
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -184,9 +192,9 @@ public class FrmBuscaMinas extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(188, 188, 188)
                 .addComponent(Reiniciar)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 72, Short.MAX_VALUE)
-                .addComponent(numMinas, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(25, 25, 25))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 61, Short.MAX_VALUE)
+                .addComponent(numMinas, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(58, 58, 58))
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
                     .addGap(32, 32, 32)
@@ -195,11 +203,15 @@ public class FrmBuscaMinas extends javax.swing.JFrame {
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(numMinas)
-                    .addComponent(Reiniciar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(numMinas, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(12, 12, 12))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(Reiniciar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
@@ -252,20 +264,17 @@ public class FrmBuscaMinas extends javax.swing.JFrame {
      */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
-        SwingUtilities.invokeLater(() -> {
-            Tablero modelo = new Tablero();
-            FrmBuscaMinas vista = new FrmBuscaMinas();
-            Controlador controlador = new Controlador(modelo, vista);
+        
+          SwingUtilities.invokeLater(() -> {
+        Tablero modelo = new Tablero();
+        FrmBuscaMinas vista = new FrmBuscaMinas();
+        Controlador controlador = new Controlador(modelo, vista);
 
-            // Asigna el controlador
-            vista.setControlador(controlador);
-
-            // Iniciar el juego
-            vista.setVisible(true);
-            controlador.iniciarJuego();
+        // Iniciar el juego
+        vista.setVisible(true);
+        controlador.iniciarJuego();
+        
         });
-        
-        
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
@@ -291,7 +300,8 @@ public class FrmBuscaMinas extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new FrmBuscaMinas().setVisible(true);
+                
+                
             }
         });
     }
