@@ -47,3 +47,4 @@ public class Temporizador extends Thread {
         return segundos;        
 }
 }
+
