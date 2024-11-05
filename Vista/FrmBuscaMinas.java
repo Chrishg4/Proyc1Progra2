@@ -138,7 +138,25 @@ public class FrmBuscaMinas extends javax.swing.JFrame {
     }
 }
 
-    
+    public void verificarVictoria() {
+    int celdasReveladas = 0;
+    int totalCeldas = SIZE * SIZE;
+    int totalMinas = 30;  // Número total de minas
+
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            Celda celda = controlador.getModelo().getCelda(i, j);
+            if (celda.isEstaRevelada()) {
+                celdasReveladas++;
+            }
+        }
+    }
+
+    // Si se han revelado todas las celdas no minadas, el jugador ha ganado
+    if (celdasReveladas == (totalCeldas - totalMinas)) {
+        mostrarMensajeFinJuego("¡Felicidades, has ganado!");
+    }
+}
 
     ImageIcon iconoMina = new ImageIcon(getClass().getResource("/Icons/mina.png"));
     ImageIcon iconoBandera = new ImageIcon(getClass().getResource("/Icons/bandera.png"));
@@ -151,11 +169,8 @@ public class FrmBuscaMinas extends javax.swing.JFrame {
             JButton boton = botones[i][j];
 
             if (celda.isEstaRevelada()) {
-                
-                ///
-              //  boton.setEnabled(false);
-                ///
-                
+                boton.setEnabled(false);
+
                 if (celda.isEsMina()) {
                     boton.setBackground(null);
                     boton.setIcon(iconoMina);  // Usar imagen de la mina
@@ -189,13 +204,14 @@ public class FrmBuscaMinas extends javax.swing.JFrame {
             } else {
                 boton.setIcon(null);         // Quitar cualquier icono
                 boton.setText("");           // Asegúrate de vaciar el texto
-                
-                // Restablecer el color gris oscuro para los botones no revelados
-                boton.setBackground(GRIS_OSCURO);
+                boton.setBackground(GRIS_OSCURO);  // Restablecer el color gris oscuro para los botones no revelados
             }
         }
     }
-  }    
+    
+    // Verificar si el jugador ha ganado
+    verificarVictoria();
+}
     
     public void reiniciarTablero() {
     for (int i = 0; i < SIZE; i++) {
