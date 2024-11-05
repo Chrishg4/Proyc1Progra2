@@ -13,6 +13,17 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import javax.print.attribute.standard.Media;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineEvent;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -28,6 +39,7 @@ public class FrmBuscaMinas extends javax.swing.JFrame {
     private JButton[][] botones;
     private Controlador controlador;
     private final Color COLOR_BOTON_NORMAL = new Color(200, 200, 200);
+    private final Color GRIS_OSCURO = new Color(150, 150, 150);  // Gris oscuro
     
     /**
      * Creates new form FrmBuscaMinas
@@ -65,7 +77,7 @@ public class FrmBuscaMinas extends javax.swing.JFrame {
 }
     
      private void inicializarComponentesPersonalizados() {
-          // Configura el panel de botones (el tablero del juego)
+  // Configura el panel de botones (el tablero del juego)
     PanelBotones.setLayout(new GridLayout(SIZE, SIZE));
     botones = new JButton[SIZE][SIZE];
 
@@ -73,7 +85,9 @@ public class FrmBuscaMinas extends javax.swing.JFrame {
         for (int j = 0; j < SIZE; j++) {
             JButton boton = new JButton();
             boton.setPreferredSize(new Dimension(40, 40));
-            boton.setBackground(COLOR_BOTON_NORMAL);
+            // Todos los botones empiezan con un gris oscuro
+            boton.setBackground(GRIS_OSCURO); 
+            
             final int fila = i;
             final int columna = j;
 
@@ -95,56 +109,106 @@ public class FrmBuscaMinas extends javax.swing.JFrame {
     // Revalidar y repintar el panel para asegurarnos de que todos los botones se generen correctamente
     PanelBotones.revalidate();
     PanelBotones.repaint();
-    }
+}
 
     public void setControlador(Controlador controlador) {
         this.controlador = controlador;
-        // Asigna la acción al botón Reiniciar
-        Reiniciar.addActionListener(e -> controlador.iniciarJuego());
+    
+    // Asigna la acción al botón Reiniciar
+    Reiniciar.addActionListener(e -> {
+        reiniciarTablero(); // Restablece visualmente el tablero
+        controlador.iniciarJuego(); // Reinicia la lógica del juego
+    });
     }
+    
+    
+    
+    
+ public void reproducirSonido(String archivoSonido) {
+     try {
+        // Cargar el archivo de sonido desde los recursos
+        URL url = getClass().getResource(archivoSonido);
+        AudioInputStream audioInput = AudioSystem.getAudioInputStream(url);
+        Clip clip = AudioSystem.getClip();
+        clip.open(audioInput);
+        clip.start();  // Reproduce el sonido
 
+    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+        e.printStackTrace();  // Manejo de errores si el archivo no se carga correctamente
+    }
+}
+
+    
+
+    ImageIcon iconoMina = new ImageIcon(getClass().getResource("/Icons/mina.png"));
+    ImageIcon iconoBandera = new ImageIcon(getClass().getResource("/Icons/bandera.png"));
+
+    
     public void actualizarTablero() {
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                Celda celda = controlador.getModelo().getCelda(i, j);
-                JButton boton = botones[i][j];
+       for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            Celda celda = controlador.getModelo().getCelda(i, j);
+            JButton boton = botones[i][j];
 
-                if (celda.isEstaRevelada()) {
-                    boton.setEnabled(false);
-                    if (celda.isEsMina()) {
-                        boton.setBackground(Color.RED);
-                        boton.setText("💣");
-                    } else {
-                        boton.setBackground(Color.LIGHT_GRAY);
-                        int minasAdyacentes = celda.getMinasAdyacentes();
-                        if (minasAdyacentes > 0) {
-                            boton.setText(String.valueOf(minasAdyacentes));
-                            switch (minasAdyacentes) {
-                                case 1:
-                                    boton.setForeground(Color.BLUE);
-                                    break;
-                                case 2:
-                                    boton.setForeground(new Color(0, 100, 0));
-                                    break;
-                                case 3:
-                                    boton.setForeground(Color.RED);
-                                    break;
-                                default:
-                                    boton.setForeground(Color.DARK_GRAY);
-                                    break;
-                            }
+            if (celda.isEstaRevelada()) {
+                
+                ///
+              //  boton.setEnabled(false);
+                ///
+                
+                if (celda.isEsMina()) {
+                    boton.setBackground(null);
+                    boton.setIcon(iconoMina);  // Usar imagen de la mina
+                    boton.setText("");         // Vaciar el texto
+                    reproducirSonido("/Sonido/explocion.wav");
+                } else {
+                    boton.setBackground(Color.LIGHT_GRAY);
+                    boton.setIcon(null);  // Asegúrate de quitar cualquier icono
+                    int minasAdyacentes = celda.getMinasAdyacentes();
+                    if (minasAdyacentes > 0) {
+                        boton.setText(String.valueOf(minasAdyacentes));
+                        switch (minasAdyacentes) {
+                            case 1:
+                                boton.setForeground(Color.BLUE);
+                                break;
+                            case 2:
+                                boton.setForeground(new Color(0, 100, 0));
+                                break;
+                            case 3:
+                                boton.setForeground(Color.RED);
+                                break;
+                            default:
+                                boton.setForeground(Color.DARK_GRAY);
+                                break;
                         }
                     }
-                } else if (celda.isEstaMarcada()) {
-                    boton.setText("🚩");
-                } else {
-                    boton.setText("");
-                    boton.setBackground(COLOR_BOTON_NORMAL);
                 }
+            } else if (celda.isEstaMarcada()) {
+                boton.setIcon(iconoBandera);  // Usar imagen de la bandera
+                boton.setText("");           // Vaciar el texto
+            } else {
+                boton.setIcon(null);         // Quitar cualquier icono
+                boton.setText("");           // Asegúrate de vaciar el texto
+                
+                // Restablecer el color gris oscuro para los botones no revelados
+                boton.setBackground(GRIS_OSCURO);
             }
         }
     }
+  }    
     
+    public void reiniciarTablero() {
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            JButton boton = botones[i][j];
+            boton.setEnabled(true);  // Reactiva los botones
+            boton.setIcon(null);     // Quita cualquier icono
+            boton.setText("");       // Limpia cualquier texto
+            boton.setBackground(GRIS_OSCURO);  // Restablece el color gris oscuro
+        }
+    }
+}
+
     public void actualizarTiempo(int segundos) {
         tiempo.setText(String.valueOf(segundos)); // Actualiza el campo de texto con el tiempo
     }
@@ -309,6 +373,7 @@ public class FrmBuscaMinas extends javax.swing.JFrame {
         });
     }
 
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel PanelBotones;
     private javax.swing.JButton Reiniciar;
